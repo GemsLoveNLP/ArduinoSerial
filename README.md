@@ -1,6 +1,6 @@
 # Arduino through Python
 
-This repository contains two parts: the Python code that is the requester and the arduino script which takes follows teh Python Command.
+This repository contains two parts: the Python code (request.py) that send requests and the arduino script (2wayCOM.ino) which takes follows the Python Command.
 
 To add more devices:
 
