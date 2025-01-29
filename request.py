@@ -1,9 +1,33 @@
 import serial
 import time
+import math
 
 # Initialize serial connection
 arduino = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
 time.sleep(2)  # Allow time for Arduino to initialize
+
+import math
+
+class imu_reading:
+    def __init__(self, ax, ay, az, wx, wy, wz, z=0):
+        self.ax = ax
+        self.ay = ay
+        self.az = az
+        self.wx = wx
+        self.wy = wy
+        self.wz = wz
+        
+
+    def get_angle(self):
+        # Accelerometer-based pitch and roll (in radians)
+        pitch_acc = math.atan2(self.ay, math.sqrt(self.ax**2 + self.az**2))
+        roll_acc = math.atan2(-self.ax, math.sqrt(self.ay**2 + self.az**2))
+
+        # Return the angles in degrees
+        return (math.degrees(pitch_acc),math.degrees(roll_acc))  
+
+    def __str__(self):
+        return f"Accelerations (m/s**2): {self.ax}, {self.ay}, {self.az}\tVelocity (rad/s): {self.wx}, {self.wy}, {self.wz}"  
 
 def read_sensor_value(): # button on Pin6
     """Retrieve the value of the sensor on pin 6."""
@@ -42,38 +66,53 @@ def read_mpu6050():
     data = arduino.readline().decode().strip()
     if data:
         try:
-            ax, ay, az, gx, gy, gz = map(int, data.split(","))
-            return {"accel": {"x": ax, "y": ay, "z": az}, "gyro": {"x": gx, "y": gy, "z": gz}}
+            ax, ay, az, gx, gy, gz = map(float, data.split(","))
+            return imu_reading(ax,ay,az,gx,gy,gz)
         except ValueError:
             return None
     return None
 
+def tilted(threshold=10):
+    read = read_mpu6050()
+    if read is not None:
+        tiltx, tilty = read.get_angle()
+        return abs(tiltx) >= threshold or abs(tilty) >= threshold
+    return
+
+# def main():
+#     # Example logic
+#     for _ in range(30):
+
+#         sensor_value = int(read_sensor_value())
+#         distance = int(read_ultrasonic_distance())
+
+#         print("Sensor Value: ", sensor_value)
+#         print("UltraS Value: ", distance)
+
+#         mode = distance < 30 and distance > 5 # in reular range => False, close => True
+
+#         if mode:
+#             if sensor_value == 0:
+#                 print(control_servo_7(0))
+#             else:
+#                 print(control_servo_7(90))
+
+#         else:
+#             if sensor_value == 0:
+#                 print(control_servo_8(0))
+#             else:
+#                 print(control_servo_8(90))
+
+#         time.sleep(1)
+#         print()
+
 def main():
-    # Example logic
-    for _ in range(30):
 
-        sensor_value = int(read_sensor_value())
-        distance = int(read_ultrasonic_distance())
+    dt = 1
 
-        print("Sensor Value: ", sensor_value)
-        print("UltraS Value: ", distance)
-
-        mode = distance < 30 and distance > 5 # in reular range => False, close => True
-
-        if mode:
-            if sensor_value == 0:
-                print(control_servo_7(0))
-            else:
-                print(control_servo_7(90))
-
-        else:
-            if sensor_value == 0:
-                print(control_servo_8(0))
-            else:
-                print(control_servo_8(90))
-
-        time.sleep(1)
-        print()
+    for i in range(10):
+        print("Tilted" if tilted() else "Stable")
+        time.sleep(dt)
 
 if __name__ == '__main__':
     main()
