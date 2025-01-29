@@ -65,7 +65,6 @@ class Arduino:
         self.write('READ_ULTRASONIC\n')
         time.sleep(0.1)
         data = self.read()
-        print(data)
         return int(data) if data.isdigit() else None
 
     def read_mpu6050(self):
@@ -96,8 +95,6 @@ def main():
     for _ in range(30):
 
         tilt = arduino.tilted()
-
-        print(tilt)
         distance = int(arduino.read_ultrasonic_distance())
 
         print("Sensor Value: ", tilt)
