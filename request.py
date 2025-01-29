@@ -27,7 +27,7 @@ class Arduino:
 
     def __init__(self):
         # Initialize serial connection
-        ser = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
+        ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Update COM port as needed
         time.sleep(2)  # Allow time for Arduino to initialize
         self.ser = ser
 
