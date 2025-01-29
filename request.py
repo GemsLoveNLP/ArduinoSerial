@@ -2,12 +2,6 @@ import serial
 import time
 import math
 
-# Initialize serial connection
-arduino = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
-time.sleep(2)  # Allow time for Arduino to initialize
-
-import math
-
 class imu_reading:
     def __init__(self, ax, ay, az, wx, wy, wz, z=0):
         self.ax = ax
@@ -29,90 +23,102 @@ class imu_reading:
     def __str__(self):
         return f"Accelerations (m/s**2): {self.ax}, {self.ay}, {self.az}\tVelocity (rad/s): {self.wx}, {self.wy}, {self.wz}"  
 
-def read_sensor_value(): # button on Pin6
-    """Retrieve the value of the sensor on pin 6."""
-    arduino.write(b'READ_SENSOR\n')
-    time.sleep(0.1)
-    data = arduino.readline().decode().strip()
-    return int(data) if data.isdigit() else None
+class Arduino:
 
-def control_servo_7(angle): # Servo on Pin7
-    """Command servo on pin 7 to move to a specific angle."""
-    command = f'SERVO7:{angle}\n'
-    arduino.write(command.encode())
-    time.sleep(0.1)
-    response = arduino.readline().decode().strip()
-    return response
+    def __init__(self):
+        # Initialize serial connection
+        ser = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
+        time.sleep(2)  # Allow time for Arduino to initialize
+        self.ser = ser
 
-def control_servo_8(angle): #Servo on Pin8
-    """Command servo on pin 8 to move to a specific angle."""
-    command = f'SERVO8:{angle}\n'
-    arduino.write(command.encode())
-    time.sleep(0.1)
-    response = arduino.readline().decode().strip()
-    return response
+    def write(self,string):
+        self.ser.write(string.encode())
 
-def read_ultrasonic_distance():
-    """Read the distance from the ultrasonic sensor in centimeters."""
-    arduino.write(b'READ_ULTRASONIC\n')
-    time.sleep(0.1)
-    data = arduino.readline().decode().strip()
-    return int(data) if data.isdigit() else None
+    def read(self):
+        return self.ser.readline().decode().strip()
 
-def read_mpu6050():
-    """Retrieve accelerometer and gyroscope data from the MPU6050."""
-    arduino.write(b'READ_MPU6050\n')
-    time.sleep(0.1)
-    data = arduino.readline().decode().strip()
-    if data:
-        try:
-            ax, ay, az, gx, gy, gz = map(float, data.split(","))
-            return imu_reading(ax,ay,az,gx,gy,gz)
-        except ValueError:
-            return None
-    return None
+    def read_sensor_value(self): # button on Pin6
+        """Retrieve the value of the sensor on pin 6."""
+        self.write('READ_SENSOR\n')
+        time.sleep(0.1)
+        data = self.read()
+        return int(data) if data.isdigit() else None
 
-def tilted(threshold=10):
-    read = read_mpu6050()
-    if read is not None:
-        tiltx, tilty = read.get_angle()
-        return abs(tiltx) >= threshold or abs(tilty) >= threshold
-    return
+    def control_servo_7(self,angle): # Servo on Pin7
+        """Command servo on pin 7 to move to a specific angle."""
+        command = f'SERVO7:{angle}\n'
+        self.write(command)
+        time.sleep(0.1)
+        response = self.read()
+        return response
 
-# def main():
-#     # Example logic
-#     for _ in range(30):
+    def control_servo_8(self,angle): #Servo on Pin8
+        """Command servo on pin 8 to move to a specific angle."""
+        command = f'SERVO8:{angle}\n'
+        self.write(command)
+        time.sleep(0.1)
+        response = self.read()
+        return response
 
-#         sensor_value = int(read_sensor_value())
-#         distance = int(read_ultrasonic_distance())
+    def read_ultrasonic_distance(self):
+        """Read the distance from the ultrasonic sensor in centimeters."""
+        self.write('READ_ULTRASONIC\n')
+        time.sleep(0.1)
+        data = self.read()
+        print(data)
+        return int(data) if data.isdigit() else None
 
-#         print("Sensor Value: ", sensor_value)
-#         print("UltraS Value: ", distance)
+    def read_mpu6050(self):
+        """Retrieve accelerometer and gyroscope data from the MPU6050."""
+        self.write('READ_MPU6050\n')
+        time.sleep(0.1)
+        data = self.read()
+        if data:
+            try:
+                ax, ay, az, gx, gy, gz = map(float, data.split(","))
+                return imu_reading(ax,ay,az,gx,gy,gz)
+            except ValueError:
+                return None
+        return None
 
-#         mode = distance < 30 and distance > 5 # in reular range => False, close => True
-
-#         if mode:
-#             if sensor_value == 0:
-#                 print(control_servo_7(0))
-#             else:
-#                 print(control_servo_7(90))
-
-#         else:
-#             if sensor_value == 0:
-#                 print(control_servo_8(0))
-#             else:
-#                 print(control_servo_8(90))
-
-#         time.sleep(1)
-#         print()
+    def tilted(self, threshold=10):
+        read = self.read_mpu6050()
+        if read is not None:
+            tiltx, tilty = read.get_angle()
+            return abs(tiltx) >= threshold or abs(tilty) >= threshold
+        return
 
 def main():
 
-    dt = 1
+    arduino = Arduino()
 
-    for i in range(10):
-        print("Tilted" if tilted() else "Stable")
-        time.sleep(dt)
+    # Example logic
+    for _ in range(30):
+
+        tilt = arduino.tilted()
+
+        print(tilt)
+        distance = int(arduino.read_ultrasonic_distance())
+
+        print("Sensor Value: ", tilt)
+        print("UltraS Value: ", distance)
+
+        mode = distance < 30 and distance > 5 # in reular range => False, close => True
+
+        if mode:
+            if tilt:
+                print(arduino.control_servo_7(0))
+            else:
+                print(arduino.control_servo_7(90))
+
+        else:
+            if tilt:
+                print(arduino.control_servo_8(0))
+            else:
+                print(arduino.control_servo_8(90))
+
+        time.sleep(1)
+        print()
 
 if __name__ == '__main__':
     main()
