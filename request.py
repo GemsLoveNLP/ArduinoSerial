@@ -1,6 +1,7 @@
 import serial
 import time
 import math
+import platform
 
 class imu_reading:
     def __init__(self, ax, ay, az, wx, wy, wz, z=0):
@@ -25,9 +26,9 @@ class imu_reading:
 
 class Arduino:
 
-    def __init__(self):
+    def __init__(self, com='/dev/ttyUSB0', baud=9600, timeout=1):
         # Initialize serial connection
-        ser = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
+        ser = serial.Serial(com, baud, timeout=timeout)  # Update COM port as needed
         time.sleep(2)  # Allow time for Arduino to initialize
         self.ser = ser
 
@@ -89,7 +90,13 @@ class Arduino:
 
 def main():
 
-    arduino = Arduino()
+    system = platform.system()
+    if system == "Windows":
+        com = "COM9"
+    elif system == "Linux":
+        com = "/dev/ttyUSB0"
+
+    arduino = Arduino(com=com)
 
     # Example logic
     for _ in range(30):
