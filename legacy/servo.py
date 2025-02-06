@@ -108,10 +108,14 @@ def tilted(threshold=10):
 
 def main():
 
-    dt = 1
+    dt = 2
 
     for i in range(10):
-        print("Tilted" if tilted() else "Stable")
+        print(control_servo_8(0))
+        time.sleep(dt)
+        print(control_servo_8(90))
+        time.sleep(dt)
+        print(control_servo_8(180))
         time.sleep(dt)
 
 if __name__ == '__main__':
