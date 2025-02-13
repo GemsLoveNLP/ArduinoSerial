@@ -106,17 +106,20 @@ def tilted(threshold=10):
 #         time.sleep(1)
 #         print()
 
+# mid point is 105, 
+
 def main():
 
-    dt = 2
+    dt = 1
 
-    for i in range(10):
-        print(control_servo_8(0))
+    while True:
+
+        angle = input("Enter the angle: ")
+        if not angle.isnumeric():
+            return
+        control_servo_8(int(angle))
         time.sleep(dt)
-        print(control_servo_8(90))
-        time.sleep(dt)
-        print(control_servo_8(180))
-        time.sleep(dt)
+        
 
 if __name__ == '__main__':
     main()
