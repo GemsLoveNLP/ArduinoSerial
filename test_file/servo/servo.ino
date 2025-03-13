@@ -3,7 +3,7 @@
 Servo myServo; // Create a Servo object
 
 void setup() {
-  myServo.attach(9);        // Attach the servo to pin 9
+  myServo.attach(8);        // Attach the servo to pin 9
   myServo.write(90);        // Set the servo to its middle position (90°)
   Serial.begin(9600);       // Initialize serial communication at 9600 baud
 }

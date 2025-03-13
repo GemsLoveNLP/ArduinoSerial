@@ -36,11 +36,19 @@ def read_sensor_value(): # button on Pin6
     data = arduino.readline().decode().strip()
     return int(data) if data.isdigit() else None
 
+def control_servo_6(angle): # Servo on Pin6
+    """Command servo on pin 6 to move to a specific angle."""
+    command = f'SERVO6:{angle}\n'
+    arduino.write(command.encode())
+    time.sleep(0.01)
+    response = arduino.readline().decode().strip()
+    return response
+
 def control_servo_7(angle): # Servo on Pin7
     """Command servo on pin 7 to move to a specific angle."""
     command = f'SERVO7:{angle}\n'
     arduino.write(command.encode())
-    time.sleep(0.1)
+    time.sleep(0.01)
     response = arduino.readline().decode().strip()
     return response
 
@@ -48,21 +56,29 @@ def control_servo_8(angle): #Servo on Pin8
     """Command servo on pin 8 to move to a specific angle."""
     command = f'SERVO8:{angle}\n'
     arduino.write(command.encode())
-    time.sleep(0.1)
+    time.sleep(0.01)
+    response = arduino.readline().decode().strip()
+    return response
+
+def control_servo_9(angle): #Servo on Pin9
+    """Command servo on pin 9 to move to a specific angle."""
+    command = f'SERVO9:{angle}\n'
+    arduino.write(command.encode())
+    time.sleep(0.01)
     response = arduino.readline().decode().strip()
     return response
 
 def read_ultrasonic_distance():
     """Read the distance from the ultrasonic sensor in centimeters."""
     arduino.write(b'READ_ULTRASONIC\n')
-    time.sleep(0.1)
+    time.sleep(0.01)
     data = arduino.readline().decode().strip()
     return int(data) if data.isdigit() else None
 
 def read_mpu6050():
     """Retrieve accelerometer and gyroscope data from the MPU6050."""
     arduino.write(b'READ_MPU6050\n')
-    time.sleep(0.1)
+    time.sleep(0.01)
     data = arduino.readline().decode().strip()
     if data:
         try:
@@ -78,6 +94,30 @@ def tilted(threshold=10):
         tiltx, tilty = read.get_angle()
         return abs(tiltx) >= threshold or abs(tilty) >= threshold
     return
+
+def control_servos(angle):
+    """Command all servos to move to a specific angle."""
+    # Note:
+    # Servo 6: Top Right (Red) -> 92 degrees
+    # Servo 7: Bottom Right -> 90 degrees
+    # Servo 8: Bottom Left -> 95 degrees
+    # Servo 9: Top Left -> 98 degrees
+    # angle += 90 (to make 0 degrees the center)
+    center = {6:92, 7:90, 8:95, 9:98} 
+    for i in range(6, 10):
+        # Calculate new local angle
+        local_angle = angle - 90 + center[i]
+        if local_angle < 0:
+            local_angle = 0
+        elif local_angle > 180:
+            local_angle = 180
+        local_angle = int(local_angle)
+        # command the servo to move to the new angle
+        command = f'SERVO{i}:{local_angle}\n'
+        arduino.write(command.encode())
+        time.sleep(0.001)
+        response = arduino.readline().decode().strip()
+        print(response)
 
 # def main():
 #     # Example logic
@@ -108,6 +148,8 @@ def tilted(threshold=10):
 
 # mid point is 105, 
 
+# for TIANKONGRC -> 24, 90, 153:: 20.7 mm thick disc
+
 def main():
 
     dt = 1
@@ -117,9 +159,10 @@ def main():
         angle = input("Enter the angle: ")
         if not angle.isnumeric():
             return
-        control_servo_8(int(angle))
-        time.sleep(dt)
-        
+        print(control_servos(int(angle)))
+        time.sleep(dt)  
+
+# current servo config -> 93 degree = 0 degree
 
 if __name__ == '__main__':
     main()
