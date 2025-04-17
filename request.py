@@ -168,10 +168,12 @@ def main():
     dt = 0.5
 
     while True:
-        angle = input("Enter the angle: ")
-        if not angle.isnumeric():
-            return
-        print(arduino.control_servos(int(angle)))
+        reading = arduino.read_mpu6050()
+        print(reading)
+        angles = reading.get_angle()
+        print(angles)
+        tilt = arduino.tilted()
+        print(tilt)
         time.sleep(dt) 
 
 if __name__ == '__main__':
