@@ -135,11 +135,11 @@ def main():
     if system == "Windows":
         com = "COM9"
     elif system == "Linux":
-        com = "/dev/ttyUSB0"
+        com = "/dev/ttyUSB1"
 
     arduino = Arduino(com=com)
 
-    # Example logic
+    # # Example logic
     # for _ in range(30):
 
     #     tilt = arduino.tilted()

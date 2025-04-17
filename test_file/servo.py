@@ -3,7 +3,7 @@ import time
 import math
 
 # Initialize serial connection
-arduino = serial.Serial('COM9', 9600, timeout=1)  # Update COM port as needed
+arduino = serial.Serial('/dev/ttyUSB3', 9600, timeout=1)  # Update COM port as needed
 time.sleep(2)  # Allow time for Arduino to initialize
 
 import math
