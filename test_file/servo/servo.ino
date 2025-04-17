@@ -1,29 +1,37 @@
-#include <Servo.h> // Include the Servo library
+#include <Servo.h>
 
-Servo myServo; // Create a Servo object
+Servo myServo;
+int servoPin = 4;   // Servo control pin
+int potPin = A0;    // Potentiometer signal pin
+float feedback = 0;
 
 void setup() {
-  myServo.attach(8);        // Attach the servo to pin 9
-  myServo.write(90);        // Set the servo to its middle position (90°)
-  Serial.begin(9600);       // Initialize serial communication at 9600 baud
+  myServo.attach(servoPin);  // Attach servo
+  Serial.begin(9600);        // Start serial monitor
+  delay(2000);
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    String command = Serial.readStringUntil('\n'); // Read the command until newline
-    command.trim(); // Remove any whitespace
 
-    // Convert the command to an integer
-    int angle = command.toInt();
+  for (int angle = 0; angle <= 180; angle += 1) {
+    myServo.write(angle);  // Move servo to the current angle
+    delay(500);            // Wait for the servo to move
 
-    // Ensure the angle is in the valid range
-    if (angle >= -90 && angle <= 90) {
-      int servoAngle = map(angle, -90, 90, 0, 180); // Map -90° to 90° to 0° to 180°
-      myServo.write(servoAngle);                   // Move the servo to the desired angle
-      Serial.print("Moved to: ");
-      Serial.println(angle);                       // Feedback for debugging
-    } else {
-      Serial.println("Invalid angle: must be between -90 and 90"); // Feedback for invalid input
-    }
+    int potValue = analogRead(potPin);  // Read the potentiometer value
+    feedback = 0.3678*potValue - 22.8739;
+    Serial.print("Set Angle: ");
+    Serial.print(angle);
+    Serial.print(" | Analog Read: ");
+    Serial.print(potValue);
+    Serial.print("| Angle Measured: ");
+    Serial.print(feedback);
+    // Serial.print(",");
+    Serial.println("");
+
+    delay(100);  // Small delay before the next step
   }
+  Serial.println("");
+  
+
+  delay(2000);  // Pause before restarting the loop
 }
