@@ -12,10 +12,10 @@ const int servoPin8 = 8;
 const int servoPin9 = 9;
 
 // // Sensitivity factors for the MPU6050 (assuming ±2g for accelerometer and ±250°/s for gyroscope)
-// const float accelScale = 16384.0; // 16384 counts per g for ±2g
-// const float gyroScale = 131.0;    // 131 counts per °/s for ±250°/s
-// const float MY_DEG_TO_RAD = 3.14159 / 180.0;  // Conversion factor from degrees to radians
-// const float GRAVITY = 9.81;  // Earth's gravity in m/s²
+const float accelScale = 16384.0; // 16384 counts per g for ±2g
+const float gyroScale = 131.0;    // 131 counts per °/s for ±250°/s
+const float MY_DEG_TO_RAD = 3.14159 / 180.0;  // Conversion factor from degrees to radians
+const float GRAVITY = 9.81;  // Earth's gravity in m/s²
 
 // Servo objects
 Servo servo6;
@@ -24,7 +24,7 @@ Servo servo8;
 Servo servo9;
 
 // // MPU6050 object
-// MPU6050 mpu;
+MPU6050 mpu;
 
 void setup() {
     Serial.begin(9600);
