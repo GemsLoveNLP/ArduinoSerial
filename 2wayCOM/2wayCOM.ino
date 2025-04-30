@@ -72,6 +72,30 @@ void loop() {
             int angle = command.substring(7).toInt();
             servo9.write(angle);
             Serial.println("Servo 9 moved");
+        }
+
+        else if (command.startsWith("SERVOS:")) {
+            // Remove "SERVOS:" prefix and split by comma
+            String args = command.substring(7);
+            int comma1 = args.indexOf(',');
+            int comma2 = args.indexOf(',', comma1 + 1);
+            int comma3 = args.indexOf(',', comma2 + 1);
+
+            if (comma1 > 0 && comma2 > comma1 && comma3 > comma2) {
+                int angle6 = args.substring(0, comma1).toInt();
+                int angle7 = args.substring(comma1 + 1, comma2).toInt();
+                int angle8 = args.substring(comma2 + 1, comma3).toInt();
+                int angle9 = args.substring(comma3 + 1).toInt();
+
+                servo6.write(angle6);
+                servo7.write(angle7);
+                servo8.write(angle8);
+                servo9.write(angle9);
+
+                Serial.println("All servos moved");
+            } else {
+                Serial.println("Invalid format for SERVOS command");
+            }
         } 
         // else if (command.startsWith("READ_ULTRASONIC")) {
         //     long duration, distance;

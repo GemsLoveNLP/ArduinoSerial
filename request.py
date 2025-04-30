@@ -32,10 +32,10 @@ class Arduino:
         time.sleep(2)  # Allow time for Arduino to initialize
         self.ser = ser
         # Set up servo boundary conditions for interpolation
-        y = [(12,81,150),
+        y = [(12,76,150),
             (22,92,163),
-            (13,82,150),
-            (24,92,160)]
+            (13,86,150),
+            (24,94,160)]
         self.coefs = [self.calculate_piecewise_linear_params(y_points=tup) for tup in y]
 
     def calculate_piecewise_linear_params(self,y_points, x_points=[0,90,180]):
@@ -124,6 +124,21 @@ class Arduino:
             response = self.read()
             if verbose:
                 print(response)
+
+    def control_servos_new(self, angle, verbose=True):
+        angle = 90 - angle
+        new_angles = [coef1[0]*angle + coef1[1] 
+                      if angle < 90 
+                      else coef2[0]*angle + coef2[1] 
+                      for coef1, coef2 in self.coefs]
+        new_angles = [angle_i if angle_i > 0 else 0 for angle_i in new_angles]
+        new_angles = [angle_i if angle_i < 180 else 180 for angle_i in new_angles]
+        command = f'SERVOS:{new_angles[0]},{new_angles[1]},{new_angles[2]},{new_angles[3]}\n'
+        self.write(command)
+        time.sleep(0.01)
+        if verbose:
+            response = self.read()
+            print(response)
 
     def read_ultrasonic_distance(self):
         """Read the distance from the ultrasonic sensor in centimeters."""
