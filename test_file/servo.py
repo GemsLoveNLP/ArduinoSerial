@@ -3,7 +3,7 @@ import time
 import math
 
 # Initialize serial connection
-arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Update COM port as needed
+arduino = serial.Serial('/dev/ttyUSB3', 9600, timeout=1)  # Update COM port as needed
 time.sleep(2)  # Allow time for Arduino to initialize
 
 import math
@@ -134,10 +134,10 @@ def control_servos(angle):
     # Servo 8: Bottom Left -> 95 degrees
     # Servo 9: Top Left -> 98 degrees
     # angle += 90 (to make 0 degrees the center)
-    x = [(12,81,150),
+    x = [(12,76,150),
          (22,92,163),
-         (13,82,150),
-         (24,92,160)]
+         (13,86,150),
+         (24,94,160)]
     coefs = [calculate_piecewise_linear_params(y_points=tup) for tup in x]
     new_angles = [coef1[0]*angle + coef1[1] 
                   if angle < 90 else 
@@ -198,7 +198,7 @@ def main():
         angle = input("Enter the angle: ")
         if not angle.isnumeric():
             return
-        print(control_servos(int(angle)))
+        print(control_servos_setup(int(angle)))
         time.sleep(dt)  
 
         # num = input("servo code: ")
